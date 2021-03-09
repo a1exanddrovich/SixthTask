@@ -5,9 +5,9 @@ public class Dock {
     public void serviceShip(Ship ship) {
         boolean isLoaded = ship.isLoaded();
         if(isLoaded) {
-            ship.changeState(new EmptyState(ship));
+            ship.setState(false);
         } else {
-            ship.changeState(new LoadedState(ship));
+            ship.setState(true);
         }
     }
 
