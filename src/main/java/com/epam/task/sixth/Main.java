@@ -1,14 +1,15 @@
 package com.epam.task.sixth;
 
+import com.epam.task.sixth.entities.Ship;
 import com.epam.task.sixth.entities.Ships;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 public class Main {
 
@@ -65,26 +66,21 @@ public class Main {
             "  ]\n" +
             "}";
 
-    private final static int THREADS_NUMBER = 12;
-    private final static int DOCKS_NUMBER = 3;
+    //private final static String SHIPS = "ships.json";
 
     public static void main(String[] args) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        Ships ships = null;
+        Ships shipsWrapper = null;
         try {
-            ships = mapper.readValue(PATH, Ships.class);
+            shipsWrapper = mapper.readValue(PATH, Ships.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        ExecutorService service = Executors.newFixedThreadPool(DOCKS_NUMBER);
-        ArrayList<Future<?>> futures = new ArrayList<>();
-        for (int i = 0; i < THREADS_NUMBER; i++) {
-            Runnable ship = ships.getShip(i);
-            Future<?> future = service.submit(ship);
-            futures.add(future);
-
-        }
+        ExecutorService service = Executors.newFixedThreadPool(shipsWrapper.getSize());
+        List<Ship> ships = shipsWrapper.getShips();
+        Stream<Ship> stream = ships.stream();
+        stream.forEach(ship -> service.submit(ship));
         service.shutdown();
     }
 

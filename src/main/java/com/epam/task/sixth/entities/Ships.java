@@ -9,8 +9,12 @@ public class Ships {
 
     public Ships() {}
 
-    public Ship getShip(int index) {
-        return this.ships.get(index);
+    public int getSize() {
+        return this.ships.size();
+    }
+
+    public List<Ship> getShips() {
+        return this.ships;
     }
 
 }
