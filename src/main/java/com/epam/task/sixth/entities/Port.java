@@ -1,10 +1,10 @@
 package com.epam.task.sixth.entities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class Port {
 
@@ -12,17 +12,21 @@ public class Port {
     private static AtomicBoolean instanceCreated = new AtomicBoolean(false);
     private final static int DOCKS_NUMBER = 3;
     private final Semaphore semaphore = new Semaphore(DOCKS_NUMBER, true);
+    private final static ReentrantLock INSTANCE_LOCK = new ReentrantLock();
     private final static Logger LOGGER = LogManager.getLogger(Port.class);
 
     private Port() {}
 
     public static Port getInstance(){
         if(!instanceCreated.get()) {
-            ReentrantLock lock = new ReentrantLock();
-            lock.lock();
-            if(!instanceCreated.get()) {
-                instance = new Port();
-                instanceCreated.set(true);
+            try {
+                INSTANCE_LOCK.lock();
+                if (!instanceCreated.get()) {
+                    instance = new Port();
+                    instanceCreated.set(true);
+                }
+            } finally {
+                INSTANCE_LOCK.unlock();
             }
         }
         return instance;
